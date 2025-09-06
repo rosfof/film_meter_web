@@ -1,0 +1,33 @@
+.inicio-page {
+  background-color: #121212;
+  color: #fff;
+  min-height: 100vh;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.banner-content {
+  background-color: rgba(0, 0, 0, 0.6);
+  padding: 2rem;
+  text-align: center;
+  width: 100%;
+}
+
+.secciones {
+  padding: 2rem;
+}
+
+.grid-peliculas {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.mini-card {
+  width: 150px;
+  text-align: center;
+}
+
+.mini-card img {
+  width: 100%;
+  border-radius: 6px;
+}
