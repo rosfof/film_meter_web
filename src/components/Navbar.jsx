@@ -31,7 +31,6 @@ const Navbar = () => {
     }
   };
 
-  // 🔄 Oculta resultados si el input está vacío
   useEffect(() => {
     if (query.trim() === '') {
       setResultados([]);

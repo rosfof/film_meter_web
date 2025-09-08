@@ -1,4 +1,3 @@
-// src/pages/Peliculas.jsx
 import React from 'react';
 
 const Series = () => {

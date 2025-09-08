@@ -19,7 +19,7 @@ const Inicio = () => {
         });
 
         const data = await response.json();
-        setPeliculas(data.results.slice(0, 5)); // Solo las 5 primeras
+        setPeliculas(data.results.slice(0, 5));
       } catch (error) {
         console.error('Error al obtener películas populares:', error);
       }
@@ -31,7 +31,7 @@ const Inicio = () => {
   useEffect(() => {
     const intervalo = setInterval(() => {
       setIndiceActual((prev) => (prev + 1) % peliculas.length);
-    }, 30000); // Cambia cada 30 segundos
+    }, 30000);
 
     return () => clearInterval(intervalo);
   }, [peliculas]);
@@ -73,7 +73,6 @@ const Inicio = () => {
         </div>
       </section>
 
-      {/* 🧩 Secciones adicionales opcionales */}
       <main className="secciones">
         <section>
           <h2>Más Populares</h2>
