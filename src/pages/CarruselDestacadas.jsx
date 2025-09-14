@@ -7,7 +7,7 @@ const CarruselDestacadas = () => {
   useEffect(() => {
     const obtenerPopulares = async () => {
       const token = process.env.REACT_APP_TMDB_ACCESS_TOKEN;
-      const url = 'https://api.themoviedb.org/3/movie/popular?language=es-ES&page=1';
+      const url = 'https://api.themoviedb.org/3/movie/popular?language=es-MX&page=1';
 
       try {
         const response = await fetch(url, {

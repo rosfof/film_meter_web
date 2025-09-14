@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import '../styles/Buscador.css';
 
 const Buscador = () => {
   const [query, setQuery] = useState('');
@@ -9,7 +10,7 @@ const Buscador = () => {
     if (!query) return;
 
     const token = process.env.REACT_APP_TMDB_ACCESS_TOKEN;
-    const url = `https://api.themoviedb.org/3/search/movie?query=${encodeURIComponent(query)}&include_adult=false&language=es-ES&page=1`;
+    const url = `https://api.themoviedb.org/3/search/movie?query=${encodeURIComponent(query)}&include_adult=false&language=es-MX&page=1`;
 
     try {
       const response = await fetch(url, {
@@ -27,29 +28,33 @@ const Buscador = () => {
   };
 
   return (
-    <div style={{ padding: '2rem' }}>
-      <form onSubmit={buscarPeliculas}>
+    <div className="buscador-page">
+      <form onSubmit={buscarPeliculas} className="buscador-form">
         <input
           type="text"
           placeholder="Buscar película..."
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          style={{ padding: '0.5rem', width: '300px' }}
+          className="buscador-input"
         />
-        <button type="submit" style={{ marginLeft: '1rem' }}>Buscar</button>
+        <button type="submit" className="buscador-btn">Buscar</button>
       </form>
 
-      <div style={{ marginTop: '2rem' }}>
+      <div className="buscador-grid">
         {resultados.length > 0 ? (
-          <ul>
-            {resultados.map((pelicula) => (
-              <li key={pelicula.id}>
-                <strong>{pelicula.title}</strong> ({pelicula.release_date?.slice(0, 4)})
-              </li>
-            ))}
-          </ul>
+          resultados.map((pelicula) => (
+            <div key={pelicula.id} className="buscador-card">
+              <img
+                src={pelicula.poster_path
+                  ? `https://image.tmdb.org/t/p/w200${pelicula.poster_path}`
+                  : 'https://via.placeholder.com/200x300?text=Sin+imagen'}
+                alt={pelicula.title}
+              />
+              <p>{pelicula.title} ({pelicula.release_date?.slice(0, 4)})</p>
+            </div>
+          ))
         ) : (
-          <p>No hay resultados.</p>
+          <p className="buscador-vacio">No hay resultados.</p>
         )}
       </div>
     </div>

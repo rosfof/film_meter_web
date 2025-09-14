@@ -14,7 +14,7 @@ const Navbar = () => {
     if (!query) return;
 
     const token = process.env.REACT_APP_TMDB_ACCESS_TOKEN;
-    const url = `https://api.themoviedb.org/3/search/movie?query=${encodeURIComponent(query)}&include_adult=false&language=es-ES&page=1`;
+    const url = `https://api.themoviedb.org/3/search/movie?query=${encodeURIComponent(query)}&include_adult=false&language=es-MX&page=1`;
 
     try {
       const response = await fetch(url, {
@@ -55,20 +55,20 @@ const Navbar = () => {
       </ul>
 
       <div className="navbar-right">
-        <form onSubmit={buscarPeliculas}>
+        <form onSubmit={buscarPeliculas} className="navbar-form">
           <input
             type="text"
             placeholder="Buscar"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            style={{ padding: '0.4rem', borderRadius: '4px', border: 'none' }}
+            className="navbar-input"
           />
         </form>
       </div>
 
       {resultados.length > 0 && (
         <div className="search-results">
-          <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center' }}>
+          <div className="search-grid">
             {resultados.slice(0, 6).map((movie) => (
               <MovieCard key={movie.id} movie={movie} />
             ))}

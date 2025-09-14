@@ -1,33 +1,186 @@
 .inicio-page {
-  background-color: #121212;
+  background-color: #0d0d0d;
   color: #fff;
-  min-height: 100vh;
   font-family: 'Segoe UI', sans-serif;
 }
 
-.banner-content {
-  background-color: rgba(0, 0, 0, 0.6);
-  padding: 2rem;
-  text-align: center;
-  width: 100%;
+.banner {
+  position: relative;
+  height: 600px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.secciones {
+.banner-overlay {
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.1), #0d0d0d 70%);
+  width: 100%;
+  height: 100%;
   padding: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+}
+
+.banner-content {
+  max-width: 800px;
+  text-align: center;
+  margin: 0 auto;
+}
+
+.banner-content h1 {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.director {
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+  color: #aaa;
+}
+
+.fecha {
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+  color: #ccc;
+}
+
+.valoracion {
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+  color: #f5c518;
+}
+
+.sinopsis {
+  font-size: 1.1rem;
+  margin-bottom: 1.5rem;
+}
+
+.control-btn {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 2.5rem;
+  cursor: pointer;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  padding: 0;
+}
+
+.control-btn.left {
+  left: 2rem;
+}
+
+.control-btn.right {
+  right: 2rem;
+}
+
+.control-btn:hover {
+  color: #f5c518;
+}
+
+.filtros {
+  padding: 2rem;
+  background-color: #1a1a1a;
+  border-top: 1px solid #333;
+}
+
+.filtro-bar {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.filtro-bar select,
+.filtro-bar input {
+  padding: 0.5rem;
+  background-color: #2a2a2a;
+  color: #fff;
+  border: 1px solid #444;
+  border-radius: 4px;
 }
 
 .grid-peliculas {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
   gap: 1rem;
-  flex-wrap: wrap;
-}
-
-.mini-card {
-  width: 150px;
-  text-align: center;
+  padding: 2rem;
 }
 
 .mini-card img {
   width: 100%;
+  border-radius: 5px;
+}
+
+.mini-card p {
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.banner-wrapper {
+  margin-bottom: 40px; 
+}
+
+.banner-overlay {
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.3), rgba(13, 13, 13, 1));
+  width: 100%;
+  height: 90%;
+  padding: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+}
+
+.inicio-categorias {
+  padding: 2rem;
+}
+
+.inicio-categorias h2 {
+  margin: 1rem 0;
+  font-size: 1.5rem;
+  border-bottom: 2px solid #444;
+  padding-bottom: 0.5rem;
+}
+
+.inicio-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 1rem;
+}
+
+.inicio-card {
+  background-color: #222;
   border-radius: 6px;
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
+}
+
+.inicio-card:hover {
+  transform: scale(1.08);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+  z-index: 2;
+}
+
+.inicio-card img {
+  width: 100%;
+  display: block;
+  border-bottom: 1px solid #333;
+}
+
+.inicio-card p {
+  padding: 0.5rem;
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+.inicio-secciones h2 {
+  margin: 1rem 0;
+  font-size: 1.5rem;
+  border-bottom: 2px solid #444;
+  padding-bottom: 0.5rem;
 }
