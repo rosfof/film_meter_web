@@ -2,18 +2,28 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../styles/login.css';
 
-const usuarios = [
-  { username: 'admin', password: '1234', role: 'admin' },
-  { username: 'diego', password: '5678', role: 'user' }
-];
-
 const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
 
+  const adminPrincipal = {
+    id: 'root',
+    username: 'admin',
+    password: '1234',
+    role: 'admin'
+  };
+
+  // Cargar admins desde localStorage y asegurar que todos tengan rol
+  const adminsGuardados = JSON.parse(localStorage.getItem('admins')) || [];
+  const usuarios = [adminPrincipal, ...adminsGuardados].map(u => ({
+    ...u,
+    role: u.role || 'admin' // Asegura que todos tengan rol
+  }));
+
   const handleLogin = (e) => {
     e.preventDefault();
+
     const usuario = usuarios.find(
       (u) => u.username === username && u.password === password
     );
@@ -21,7 +31,13 @@ const Login = () => {
     if (usuario) {
       const token = btoa(JSON.stringify(usuario));
       localStorage.setItem('token', token);
-      navigate(usuario.role === 'admin' ? '/admin' : '/');
+
+      // Validar rol explícitamente
+      if (usuario.role === 'admin') {
+        navigate('/admin');
+      } else {
+        navigate('/');
+      }
     } else {
       alert('Usuario o contraseña incorrectos');
     }
