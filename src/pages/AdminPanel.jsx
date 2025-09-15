@@ -4,7 +4,6 @@ import { useNavigate } from 'react-router-dom';
 import Dashboard from './Dashboard';
 import AdminManager from './AdminManager';
 import PeliculasManager from './PeliculasManager';
-import Logs from './Logs';
 
 import '../styles/adminpanel.css';
 
@@ -20,7 +19,6 @@ const AdminPanel = () => {
 
   return (
     <div className="admin-layout">
-      {/* Ícono hamburguesa visible solo en móvil */}
       <div
         className="hamburger-btn"
         onClick={() => setMenuVisible(!menuVisible)}
@@ -43,34 +41,28 @@ const AdminPanel = () => {
         </svg>
       </div>
 
-      {/* Sidebar con visibilidad controlada */}
       <aside className={`sidebar ${menuVisible ? 'visible' : ''}`}>
-        <h3>Panel Admin</h3>
+        <h3>Panel</h3>
         <ul>
           <li onClick={() => { setVista('dashboard'); setMenuVisible(false); }}>
-            📊 Dashboard
+            ⌨ Dashboard
           </li>
           <li onClick={() => { setVista('admins'); setMenuVisible(false); }}>
-            👥 Administradores
+            🛠 Administradores
           </li>
           <li onClick={() => { setVista('peliculas'); setMenuVisible(false); }}>
-            🎬 Películas
-          </li>
-          <li onClick={() => { setVista('logs'); setMenuVisible(false); }}>
-            📄 Actividad
+            ✎ Editar
           </li>
           <li onClick={() => { cerrarSesion(); setMenuVisible(false); }}>
-            🔐 Cerrar sesión
+            ꄗ Cerrar sesión
           </li>
         </ul>
       </aside>
 
-      {/* Contenido dinámico según vista */}
       <main className="admin-content">
         {vista === 'dashboard' && <Dashboard />}
         {vista === 'admins' && <AdminManager />}
         {vista === 'peliculas' && <PeliculasManager />}
-        {vista === 'logs' && <Logs />}
       </main>
     </div>
   );

@@ -4,8 +4,15 @@ import { Navigate } from 'react-router-dom';
 const ProtectedRoute = ({ children, requiredRole }) => {
   const { user } = useAuth();
 
-  if (!user || user.role !== requiredRole) {
-    return <Navigate to="/no-autorizado" />;
+  // Validación segura del usuario y rol
+  const tieneAcceso =
+    user &&
+    typeof user === 'object' &&
+    user.role &&
+    user.role === requiredRole;
+
+  if (!tieneAcceso) {
+    return <Navigate to="/no-autorizado" replace />;
   }
 
   return children;

@@ -1,5 +1,11 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  useLocation
+} from 'react-router-dom';
+
 import Navbar from './components/Navbar';
 import Inicio from './pages/Inicio';
 import Peliculas from './pages/Peliculas';
@@ -8,19 +14,19 @@ import Estrenos from './pages/Estrenos';
 import AdminPanel from './pages/AdminPanel';
 import Login from './pages/Login';
 import NoAutorizado from './pages/NoAutorizado';
+
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 
 const AppContent = () => {
   const location = useLocation();
-
-  // Rutas donde se oculta el Navbar
-  const ocultarNavbarEn = ['/login', '/admin'];
+  const ocultarNavbarEn = ['/login', '/admin', '/no-autorizado'];
   const mostrarNavbar = !ocultarNavbarEn.includes(location.pathname);
 
   return (
     <>
       {mostrarNavbar && <Navbar />}
+
       <Routes>
         <Route path="/" element={<Inicio />} />
         <Route path="/peliculas" element={<Peliculas />} />

@@ -1,0 +1,33 @@
+.no-autorizado-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #f8f9fa;
+  text-align: center;
+}
+
+.no-autorizado-mensaje {
+  max-width: 400px;
+  padding: 2rem;
+  border-radius: 12px;
+  background-color: #fff;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
+}
+
+.icono-x {
+  font-size: 4rem;
+  color: #e74c3c;
+  margin-bottom: 1rem;
+}
+
+.no-autorizado-mensaje h2 {
+  font-size: 2rem;
+  color: #e74c3c;
+  margin-bottom: 0.5rem;
+}
+
+.no-autorizado-mensaje p {
+  font-size: 1.1rem;
+  color: #555;
+}

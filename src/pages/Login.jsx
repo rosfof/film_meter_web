@@ -18,28 +18,42 @@ const Login = () => {
   const adminsGuardados = JSON.parse(localStorage.getItem('admins')) || [];
   const usuarios = [adminPrincipal, ...adminsGuardados].map(u => ({
     ...u,
-    role: u.role || 'admin' // Asegura que todos tengan rol
+    role: u.role || 'admin'
   }));
 
   const handleLogin = (e) => {
     e.preventDefault();
 
+    // Buscar usuario válido
     const usuario = usuarios.find(
       (u) => u.username === username && u.password === password
     );
 
-    if (usuario) {
+    if (!usuario) {
+      alert('Usuario o contraseña incorrectos');
+      return;
+    }
+
+    try {
+      // Guardar token de forma segura
       const token = btoa(JSON.stringify(usuario));
       localStorage.setItem('token', token);
 
-      // Validar rol explícitamente
-      if (usuario.role === 'admin') {
-        navigate('/admin');
+      // Validar rol y redirigir
+      if (usuario.role && usuario.role === 'admin') {
+        // Confirmar que el token se guardó antes de redirigir
+        const confirmToken = localStorage.getItem('token');
+        if (confirmToken) {
+          navigate('/admin');
+        } else {
+          alert('Error al guardar sesión. Intenta nuevamente.');
+        }
       } else {
         navigate('/');
       }
-    } else {
-      alert('Usuario o contraseña incorrectos');
+    } catch (error) {
+      console.error('Error al iniciar sesión:', error);
+      alert('Ocurrió un error inesperado. Intenta nuevamente.');
     }
   };
 
