@@ -4,7 +4,6 @@ import { Navigate } from 'react-router-dom';
 const ProtectedRoute = ({ children, requiredRole }) => {
   const { user } = useAuth();
 
-  // Validación segura del usuario y rol
   const tieneAcceso =
     user &&
     typeof user === 'object' &&

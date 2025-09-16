@@ -14,7 +14,6 @@ const Login = () => {
     role: 'admin'
   };
 
-  // Cargar admins desde localStorage y asegurar que todos tengan rol
   const adminsGuardados = JSON.parse(localStorage.getItem('admins')) || [];
   const usuarios = [adminPrincipal, ...adminsGuardados].map(u => ({
     ...u,
@@ -24,7 +23,6 @@ const Login = () => {
   const handleLogin = (e) => {
     e.preventDefault();
 
-    // Buscar usuario válido
     const usuario = usuarios.find(
       (u) => u.username === username && u.password === password
     );
@@ -35,13 +33,10 @@ const Login = () => {
     }
 
     try {
-      // Guardar token de forma segura
       const token = btoa(JSON.stringify(usuario));
       localStorage.setItem('token', token);
 
-      // Validar rol y redirigir
       if (usuario.role && usuario.role === 'admin') {
-        // Confirmar que el token se guardó antes de redirigir
         const confirmToken = localStorage.getItem('token');
         if (confirmToken) {
           navigate('/admin');
