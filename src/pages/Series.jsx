@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
 import '../styles/Series.css';
 import MovieCard from '../components/MovieCard';
 

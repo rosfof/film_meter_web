@@ -73,12 +73,9 @@ const Navbar = () => {
           apiResultados = await Promise.all(apiResultados.map(async (item) => {
             try {
               let director = 'Desconocido';
-              const tipo = item.tipo;
-              const id = item.id;
-
-              const creditsUrl = tipo === 'pelicula'
-                ? `https://api.themoviedb.org/3/movie/${id}/credits`
-                : `https://api.themoviedb.org/3/tv/${id}/credits`;
+              const creditsUrl = item.tipo === 'pelicula'
+                ? `https://api.themoviedb.org/3/movie/${item.id}/credits`
+                : `https://api.themoviedb.org/3/tv/${item.id}/credits`;
 
               const creditsRes = await fetch(creditsUrl, {
                 headers: {
@@ -90,7 +87,7 @@ const Navbar = () => {
               const credits = await creditsRes.json();
               const crew = credits.crew || [];
 
-              if (tipo === 'pelicula') {
+              if (item.tipo === 'pelicula') {
                 const dir = crew.find(c => c.job === 'Director');
                 if (dir) director = dir.name;
               } else {
@@ -111,7 +108,7 @@ const Navbar = () => {
 
           setResultados([...filtradosBackend, ...filtradosManual, ...filtradosAPI]);
         } catch (error) {
-          console.error('❌ Error al buscar contenido:', error);
+          console.error('Error al buscar contenido:', error);
         }
       };
 
@@ -164,29 +161,39 @@ const Navbar = () => {
       {resultados.length > 0 && (
         <div className="search-results" ref={resultsRef}>
           <div className="search-grid">
-            {resultados.slice(0, 6).map((item) => (
-              <div key={item.id} onClick={handleResultClick} style={{ cursor: 'pointer' }}>
-                <MovieCard
-                  item={{
-                    id: item.id,
-                    title: item.titulo || item.title || item.name,
-                    overview: item.descripcion || item.overview || '',
-                    poster_path: item.poster_path || '',
-                    imagen_url: item.imagen_url || '',
-                    tipo: item.tipo,
-                    release_date: item.release_date || '',
-                    director: item.director || 'Desconocido',
-                    vote_average: item.vote_average || item.rating || null,
-                  }}
-                  tipo={item.tipo}
-                  mostrarTipo={true}
-                />
+            {resultados.slice(0, 8).map((item) => (
+              <div key={item.id} className="search-row-card" style={{ cursor: 'default' }}>
+                <div onClick={handleResultClick} style={{ cursor: 'pointer' }}>
+                  <MovieCard
+                    key={item.id}
+                    item={{
+                      id: item.id,
+                      title: item.titulo || item.title || item.name,
+                      overview: item.descripcion || item.overview || '',
+                      poster_path: item.poster_path || '',
+                      imagen_url: item.imagen_url || item.imagen || '',
+                      tipo: item.tipo,
+                      release_date: item.release_date || '',
+                      director: item.director || 'Desconocido',
+                    }}
+                  />
+                </div>
+                <div className="search-row-info">
+                  <div className="search-row-title">
+                    {item.titulo || item.title || item.name}
+                  </div>
+                  <div className="search-row-director">
+                    {item.director ? `Dirigido por: ${item.director}` : 'Director desconocido'}
+                  </div>
+                </div>
               </div>
             ))}
           </div>
           {resultados.length > 18 && (
             <div style={{ textAlign: 'center', marginTop: '1rem', color: '#FFD700', fontWeight: 500, fontSize: '1rem' }}>
-              <Link to="/buscar" className="ver-todas">Ver todas las películas</Link>
+              <Link to="/buscar" className="ver-todas">
+                Ver todas las películas
+              </Link>
             </div>
           )}
         </div>

@@ -2,8 +2,8 @@ const oracledb = require('oracledb');
 oracledb.thin = true;
 
 const dbConfig = {
-  user: 'film_user', // o ADMIN si lo desbloqueaste
-  password: 'film123', // o tu contraseña real
+  user: 'film_user',
+  password: 'film123',
   connectString: 'localhost:1521/XEPDB1'
 };
 

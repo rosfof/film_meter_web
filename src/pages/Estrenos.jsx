@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
 import '../styles/Estrenos.css';
 import MovieCard from '../components/MovieCard';
 
@@ -11,9 +10,15 @@ const Estrenos = () => {
   useEffect(() => {
     const fetchEstrenos = async () => {
       try {
-        const res = await fetch('https://api.themoviedb.org/3/movie/now_playing?language=es-MX&page=1', {
-          headers: { Authorization: `Bearer ${token}`, accept: 'application/json' }
-        });
+        const res = await fetch(
+          'https://api.themoviedb.org/3/movie/now_playing?language=es-MX&page=1',
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              accept: 'application/json',
+            },
+          }
+        );
 
         const data = await res.json();
         setEstrenos(data.results.slice(0, 15));
