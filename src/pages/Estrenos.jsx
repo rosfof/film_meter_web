@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import '../styles/Estrenos.css';
+import MovieCard from '../components/MovieCard';
 
 const Estrenos = () => {
   const [estrenos, setEstrenos] = useState([]);
@@ -25,15 +27,7 @@ const Estrenos = () => {
 
   const renderTarjetas = (lista) =>
     lista.map((item) => (
-      <div key={item.id} className="estrenos-card">
-        <img
-          src={item.poster_path
-            ? `https://image.tmdb.org/t/p/w200${item.poster_path}`
-            : 'https://via.placeholder.com/200x300?text=Sin+imagen'}
-          alt={item.title}
-        />
-        <p>{item.title}</p>
-      </div>
+      <MovieCard key={item.id} item={item} tipo="pelicula" mostrarTipo={true} />
     ));
 
   return (

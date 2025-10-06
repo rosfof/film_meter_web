@@ -4,11 +4,30 @@ import '../styles/PeliculasManager.css';
 const PeliculasManager = () => {
   const [query, setQuery] = useState('');
   const [resultados, setResultados] = useState([]);
-  const [formManual, setFormManual] = useState({ tipo: 'pelicula', titulo: '', imagen: '' });
-  const [contenidoManual, setContenidoManual] = useState([]);
-  const [bloqueados, setBloqueados] = useState([]);
+  const [bloqueadas, setBloqueadas] = useState([]);
+  const [form, setForm] = useState({
+    tipo: 'Película',
+    titulo: '',
+    imagen_url: '',
+    archivo: null
+  });
+  const [guardados, setGuardados] = useState([]);
 
   const token = process.env.REACT_APP_TMDB_ACCESS_TOKEN;
+
+  const cargarGuardados = async () => {
+    try {
+      const res = await fetch('http://localhost:3001/api/peliculas');
+      const data = await res.json();
+      setGuardados(data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  useEffect(() => {
+    cargarGuardados();
+  }, []);
 
   useEffect(() => {
     const delay = setTimeout(() => {
@@ -16,8 +35,6 @@ const PeliculasManager = () => {
         setResultados([]);
         return;
       }
-
-      const bloqueados = JSON.parse(localStorage.getItem('bloqueados') || '[]');
 
       const buscarContenido = async () => {
         const endpoints = [
@@ -38,14 +55,16 @@ const PeliculasManager = () => {
           );
 
           const combinados = [
-            ...resPeliculas.results.map(r => ({ ...r, tipo: 'pelicula' })),
-            ...resSeries.results.map(r => ({ ...r, tipo: 'serie' })),
+            ...resPeliculas.results.map(r => ({ ...r, tipo: 'Película' })),
+            ...resSeries.results.map(r => ({ ...r, tipo: 'Serie' })),
           ];
 
+          const bloqueados = JSON.parse(localStorage.getItem('bloqueados') || '[]');
           const filtrados = combinados.filter(item => !bloqueados.includes(item.id));
+
           setResultados(filtrados);
         } catch (error) {
-          console.error('Error al buscar contenido:', error);
+          console.error(error);
         }
       };
 
@@ -56,60 +75,85 @@ const PeliculasManager = () => {
   }, [query, token]);
 
   useEffect(() => {
-    const manual = JSON.parse(localStorage.getItem('contenidoManual') || '[]');
-    const bloqueados = JSON.parse(localStorage.getItem('bloqueados') || '[]');
-    setContenidoManual(manual);
-    setBloqueados(bloqueados);
-  }, []);
+    const cargarBloqueadas = async () => {
+      const ids = JSON.parse(localStorage.getItem('bloqueados') || '[]');
+      if (ids.length === 0) {
+        setBloqueadas([]);
+        return;
+      }
 
-  const bloquearContenido = (id) => {
-    const actualizados = [...bloqueados, id];
-    localStorage.setItem('bloqueados', JSON.stringify(actualizados));
-    setBloqueados(actualizados);
-    setResultados(prev => prev.filter(item => item.id !== id));
-  };
+      try {
+        const peticiones = ids.map(id =>
+          fetch(`https://api.themoviedb.org/3/movie/${id}?language=es-MX`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              accept: 'application/json',
+            },
+          }).then(r => r.json())
+        );
 
-  const desbloquearContenido = (id) => {
-    const actualizados = bloqueados.filter(b => b !== id);
-    localStorage.setItem('bloqueados', JSON.stringify(actualizados));
-    setBloqueados(actualizados);
-  };
-
-  const handleImageUpload = (e) => {
-    const file = e.target.files[0];
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setFormManual(prev => ({ ...prev, imagen: reader.result }));
+        const resultados = await Promise.all(peticiones);
+        setBloqueadas(resultados.filter(r => r && r.id));
+      } catch (err) {
+        console.error('Error al cargar bloqueadas:', err);
+      }
     };
-    if (file) reader.readAsDataURL(file);
-  };
 
-  const agregarManual = (e) => {
+    cargarBloqueadas();
+  }, [token]);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const nuevo = { ...formManual, id: Date.now() };
-    const actualizados = [...contenidoManual, nuevo];
-    localStorage.setItem('contenidoManual', JSON.stringify(actualizados));
-    setContenidoManual(actualizados);
-    setFormManual({ tipo: 'pelicula', titulo: '', imagen: '' });
+
+    const formData = new FormData();
+    formData.append('titulo', form.titulo);
+    formData.append('tipo', form.tipo);
+    formData.append('imagen_url', form.imagen_url);
+    if (form.archivo) {
+      formData.append('archivo', form.archivo);
+    }
+
+    try {
+      const res = await fetch('http://localhost:3001/api/peliculas', {
+        method: 'POST',
+        body: formData
+      });
+
+      const data = await res.json();
+      alert(data.mensaje || 'Película guardada');
+      setForm({ tipo: 'Película', titulo: '', imagen_url: '', archivo: null });
+      cargarGuardados();
+    } catch (err) {
+      console.error(err);
+      alert('Error al guardar película');
+    }
   };
 
-  const eliminarManual = (id) => {
-    const actualizados = contenidoManual.filter(item => item.id !== id);
-    localStorage.setItem('contenidoManual', JSON.stringify(actualizados));
-    setContenidoManual(actualizados);
-  };
+  const eliminarPelicula = async (id) => {
+    if (!window.confirm('¿Eliminar esta película?')) return;
 
-  const peliculasManuales = contenidoManual.filter(item => item.tipo === 'pelicula');
-  const seriesManuales = contenidoManual.filter(item => item.tipo === 'serie');
+    try {
+      const res = await fetch(`http://localhost:3001/api/peliculas/${id}`, {
+        method: 'DELETE'
+      });
+
+      const data = await res.json();
+      alert(data.mensaje || 'Película eliminada');
+      cargarGuardados();
+    } catch (err) {
+      console.error(err);
+      alert('Error al eliminar película');
+    }
+  };
 
   return (
     <div className="admin-card">
-      <h2>Bloquear contenido</h2>
+      <h2>✎ Editar contenido</h2>
 
       <div className="admin-form">
         <input
           type="text"
-          placeholder="Buscar"
+          placeholder="Buscar en TMDB"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
         />
@@ -120,62 +164,139 @@ const PeliculasManager = () => {
         {resultados.map(item => (
           <div key={item.id} className="admin-item">
             <p><strong>{item.title || item.name}</strong> ({item.tipo})</p>
-            <button className="delete-btn" onClick={() => bloquearContenido(item.id)}>Bloquear</button>
+            <img
+              src={
+                item.poster_path
+                  ? `https://image.tmdb.org/t/p/w200${item.poster_path}`
+                  : 'https://via.placeholder.com/100x150?text=Sin+imagen'
+              }
+              alt={item.title || item.name}
+              style={{ width: '100px', borderRadius: '6px' }}
+              onError={(e) => { e.target.style.display = 'none'; }}
+            />
+            <button
+              style={{
+                marginTop: '6px',
+                backgroundColor: '#ff4d4d',
+                color: '#fff',
+                border: 'none',
+                padding: '4px 8px',
+                borderRadius: '4px',
+                cursor: 'pointer'
+              }}
+              onClick={() => {
+                const bloqueados = JSON.parse(localStorage.getItem('bloqueados') || '[]');
+                if (!bloqueados.includes(item.id)) {
+                  localStorage.setItem('bloqueados', JSON.stringify([...bloqueados, item.id]));
+                  setResultados(prev => prev.filter(r => r.id !== item.id));
+                }
+              }}
+            >
+              Bloquear
+            </button>
           </div>
         ))}
       </div>
 
-      <form className="admin-form" onSubmit={agregarManual}>
+      <form className="admin-form" onSubmit={handleSubmit}>
         <h4>Agregar contenido</h4>
         <select
-          value={formManual.tipo}
-          onChange={(e) => setFormManual({ ...formManual, tipo: e.target.value })}
+          value={form.tipo}
+          onChange={(e) => setForm({ ...form, tipo: e.target.value })}
         >
-          <option value="pelicula">Película</option>
-          <option value="serie">Serie</option>
+          <option value="Película">Película</option>
+          <option value="Serie">Serie</option>
         </select>
         <input
           type="text"
           placeholder="Título"
-          value={formManual.titulo}
-          onChange={(e) => setFormManual({ ...formManual, titulo: e.target.value })}
+          value={form.titulo}
+          onChange={(e) => setForm({ ...form, titulo: e.target.value })}
           required
         />
-        <label style={{ fontSize: '0.85rem', marginBottom: '0.5rem', display: 'block' }}>
-          Imagen sugerida: 300x450px
-        </label>
-        <input type="file" accept="image/*" onChange={handleImageUpload} />
-        <button type="submit">Agregar contenido</button>
+        <input
+          type="text"
+          placeholder="URL de imagen (Opcional)"
+          value={form.imagen_url}
+          onChange={(e) => setForm({ ...form, imagen_url: e.target.value })}
+        />
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) => setForm({ ...form, archivo: e.target.files[0] })}
+          />
+          <small style={{ color: '#888', fontSize: '0.85rem' }}>
+            📐 Carga imágenes de 300×450px para mejor visualización.
+          </small>
+        </div>
+        {(form.imagen_url || form.archivo) && (
+          <div style={{ marginTop: '10px' }}>
+            <img
+              src={
+                form.archivo
+                  ? URL.createObjectURL(form.archivo)
+                  : form.imagen_url
+              }
+              alt="Vista previa"
+              style={{ width: '100px', borderRadius: '6px' }}
+              onError={(e) => { e.target.style.display = 'none'; }}
+            />
+          </div>
+        )}
+        <button type="submit">Guardar</button>
       </form>
 
       <div className="admin-list">
-        <h4>Películas agregadas</h4>
-        {peliculasManuales.map(item => (
+        <h4>Contenido agregado</h4>
+        {guardados.map(item => (
           <div key={item.id} className="admin-item">
-            {item.imagen && <img src={item.imagen} alt={item.titulo} style={{ width: '80px', borderRadius: '6px' }} />}
-            <p><strong>{item.titulo}</strong></p>
-            <button className="delete-btn" onClick={() => eliminarManual(item.id)}>Eliminar</button>
-          </div>
-        ))}
-
-        <h4>Series agregadas</h4>
-        {seriesManuales.map(item => (
-          <div key={item.id} className="admin-item">
-            {item.imagen && <img src={item.imagen} alt={item.titulo} style={{ width: '80px', borderRadius: '6px' }} />}
-            <p><strong>{item.titulo}</strong></p>
-            <button className="delete-btn" onClick={() => eliminarManual(item.id)}>Eliminar</button>
+            {item.imagen_url && (
+              <img
+                src={item.imagen_url}
+                alt={item.titulo}
+                style={{ width: '100px', borderRadius: '6px' }}
+                onError={(e) => { e.target.style.display = 'none'; }}
+              />
+            )}
+            <p><strong>{item.titulo}</strong> ({item.tipo})</p>
+            <button className="delete-btn" onClick={() => eliminarPelicula(item.id)}>Eliminar</button>
           </div>
         ))}
       </div>
 
-      <div className="admin-list">
+        <div className="admin-list">
         <h4>Contenido bloqueado</h4>
-        {bloqueados.map(id => (
-          <div key={id} className="admin-item">
-            <p>ID bloqueado: {id}</p>
-            <button className="save-btn" onClick={() => desbloquearContenido(id)}>Desbloquear</button>
-          </div>
-        ))}
+        {bloqueadas.length === 0 ? (
+          <p style={{ color: '#888' }}>No hay contenido bloqueado.</p>
+        ) : (
+          bloqueadas.map(item => (
+            <div key={item.id} className="admin-item">
+              <img
+                src={
+                  item.poster_path
+                    ? `https://image.tmdb.org/t/p/w200${item.poster_path}`
+                    : 'https://via.placeholder.com/100x150?text=Sin+imagen'
+                }
+                alt={item.title}
+                style={{ width: '100px', borderRadius: '6px' }}
+                onError={(e) => { e.target.style.display = 'none'; }}
+              />
+              <p><strong>{item.title}</strong></p>
+              <button
+                className="delete-btn"
+                onClick={() => {
+                  const actual = JSON.parse(localStorage.getItem('bloqueados') || '[]');
+                  const nueva = actual.filter(id => id !== item.id);
+                  localStorage.setItem('bloqueados', JSON.stringify(nueva));
+                  setBloqueadas(prev => prev.filter(p => p.id !== item.id));
+                }}
+              >
+                Desbloquear
+              </button>
+            </div>
+          ))
+        )}
       </div>
     </div>
   );
