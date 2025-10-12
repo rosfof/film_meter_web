@@ -25,12 +25,6 @@ const Navbar = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const handleResultClick = () => {
-    setQuery('');
-    setResultados([]);
-    setMenuOpen(false);
-  };
-
   useEffect(() => {
     const delay = setTimeout(() => {
       if (!query.trim()) {
@@ -132,12 +126,15 @@ const Navbar = () => {
 
   return (
     <nav className={`navbar ${scrolled ? 'scrolled' : ''}`}>
-      <div className="navbar-left">
-        <img src={logo} alt="FilmMeter Logo" className="logo" />
+      <div className="navbar-top">
+        <div className="navbar-left">
+          <img src={logo} alt="FilmMeter Logo" className="logo" />
+        </div>
+        <button className="hamburger" onClick={() => setMenuOpen(!menuOpen)}>
+          <FiMenu />
+        </button>
       </div>
-      <button className="hamburger" onClick={() => setMenuOpen(!menuOpen)}>
-        <FiMenu />
-      </button>
+
       <ul className={`navbar-center ${menuOpen ? 'open' : ''}`}>
         <li><Link to="/"><AiFillHome className="nav-icon"/> Inicio</Link></li>
         <li><Link to="/peliculas"><MdLocalMovies className="nav-icon"/> Películas</Link></li>
@@ -161,41 +158,35 @@ const Navbar = () => {
       {resultados.length > 0 && (
         <div className="search-results" ref={resultsRef}>
           <div className="search-grid">
-            {resultados.slice(0, 8).map((item) => (
-              <div key={item.id} className="search-row-card" style={{ cursor: 'default' }}>
-                <div onClick={handleResultClick} style={{ cursor: 'pointer' }}>
-                  <MovieCard
-                    key={item.id}
-                    item={{
-                      id: item.id,
-                      title: item.titulo || item.title || item.name,
-                      overview: item.descripcion || item.overview || '',
-                      poster_path: item.poster_path || '',
-                      imagen_url: item.imagen_url || item.imagen || '',
-                      tipo: item.tipo,
-                      release_date: item.release_date || '',
-                      director: item.director || 'Desconocido',
-                    }}
-                  />
-                </div>
-                <div className="search-row-info">
-                  <div className="search-row-title">
-                    {item.titulo || item.title || item.name}
-                  </div>
-                  <div className="search-row-director">
-                    {item.director ? `Dirigido por: ${item.director}` : 'Director desconocido'}
-                  </div>
-                </div>
-              </div>
-            ))}
+            {resultados
+              .filter(item =>
+                (item.poster_path || item.imagen || item.imagen_url) &&
+                (item.title || item.name || item.titulo)
+              )
+              .slice(0, 12)
+              .map((item) => (
+                <MovieCard
+                  key={item.id}
+                  item={{
+                    id: item.id,
+                    title: item.titulo || item.title || item.name,
+                    overview: item.descripcion || item.overview || '',
+                    poster_path: item.poster_path || '',
+                    imagen_url: item.imagen_url || item.imagen || '',
+                    tipo: item.tipo,
+                    release_date: item.release_date || item.first_air_date || '',
+                    director: item.director || 'Desconocido',
+                    vote_average: item.vote_average || item.rating || null,
+                  }}
+                  tipo={item.tipo}
+                  mostrarTipo={true}
+                  onClick={() => {
+                    setResultados([]);
+                    setQuery('');
+                  }}
+                />
+              ))}
           </div>
-          {resultados.length > 18 && (
-            <div style={{ textAlign: 'center', marginTop: '1rem', color: '#FFD700', fontWeight: 500, fontSize: '1rem' }}>
-              <Link to="/buscar" className="ver-todas">
-                Ver todas las películas
-              </Link>
-            </div>
-          )}
         </div>
       )}
     </nav>

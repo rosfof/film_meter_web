@@ -52,20 +52,27 @@ const Inicio = () => {
     fetchData();
   }, [token]);
 
+  const peliculasConSinopsis = peliculasPopulares.filter(
+    p => p.overview && p.overview.trim().length > 0
+  );
+
+  const actual = peliculasConSinopsis.length > 0
+    ? peliculasConSinopsis[indiceActual % peliculasConSinopsis.length]
+    : null;
+
   useEffect(() => {
     const intervalo = setInterval(() => {
-      setIndiceActual((prev) => (prev + 1) % peliculasPopulares.length);
+      setIndiceActual((prev) => (prev + 1) % peliculasConSinopsis.length);
     }, 10000);
 
     return () => clearInterval(intervalo);
-  }, [peliculasPopulares]);
+  }, [peliculasConSinopsis]);
 
   useEffect(() => {
     const obtenerDetalles = async () => {
-      if (peliculasPopulares.length === 0) return;
+      if (!actual) return;
 
-      const id = peliculasPopulares[indiceActual].id;
-      const url = `https://api.themoviedb.org/3/movie/${id}?language=es-MX&append_to_response=credits`;
+      const url = `https://api.themoviedb.org/3/movie/${actual.id}?language=es-MX&append_to_response=credits`;
 
       try {
         const response = await fetch(url, {
@@ -88,14 +95,13 @@ const Inicio = () => {
     };
 
     obtenerDetalles();
-  }, [indiceActual, peliculasPopulares, token]);
+  }, [actual, token]);
 
-  if (peliculasPopulares.length === 0 || !detalles) {
-    return <div className="inicio-loading">Cargando contenido...</div>;
+  if (!actual || !detalles) {
+    return <div className="inicio-loading">No hay películas con sinopsis disponible.</div>;
   }
 
-  const actual = peliculasPopulares[indiceActual];
-  const fondo = actual?.backdrop_path
+  const fondo = actual.backdrop_path
     ? `https://image.tmdb.org/t/p/original${actual.backdrop_path}`
     : 'https://via.placeholder.com/1200x600?text=Sin+imagen';
 
@@ -115,21 +121,26 @@ const Inicio = () => {
             src={
               item.poster_path
                 ? `https://image.tmdb.org/t/p/w300${item.poster_path}`
-                : 'https://via.placeholder.com/200x300?text=Sin+imagen'
+                : 'https://via.placeholder.com/300x450?text=Sin+imagen'
             }
             alt={item.title || item.name}
             className="card-image"
+            loading="lazy"
+            onError={(e) => { e.currentTarget.src = 'https://via.placeholder.com/300x450?text=Sin+imagen'; }}
           />
-          <div className="card-info">
-            <h3 className="card-title">{item.title || item.name}</h3>
-            <div className="card-meta">
-              <span className="card-year">
-                {new Date(item.release_date || item.first_air_date).getFullYear()}
-              </span>
-              <span className="card-rating">
-                ⭐ {item.vote_average.toFixed(1)}
-              </span>
-            </div>
+        </div>
+
+        <div className="card-info">
+          <h3 className="card-title">{item.title || item.name}</h3>
+          <div className="card-meta">
+            <span className="card-year">
+              {item.release_date || item.first_air_date
+                ? new Date(item.release_date || item.first_air_date).getFullYear()
+                : '—'}
+            </span>
+            <span className="card-rating">
+              ⭐ {item.vote_average && item.vote_average > 0 ? Number(item.vote_average).toFixed(1) : '—'}
+            </span>
           </div>
         </div>
       </Link>
@@ -183,30 +194,38 @@ const Inicio = () => {
             </div>
 
             <div className="banner-controls">
-              <button 
-                onClick={() => setIndiceActual((prev) => (prev === 0 ? peliculasPopulares.length - 1 : prev - 1))} 
+              <button
+                onClick={() =>
+                  setIndiceActual((prev) =>
+                    prev === 0 ? peliculasConSinopsis.length - 1 : prev - 1
+                  )
+                }
                 className="control-btn nav-btn"
                 aria-label="Anterior"
                 title="Anterior"
               >
                 ‹
               </button>
-              <button 
-                onClick={() => setIndiceActual((prev) => (prev + 1) % peliculasPopulares.length)} 
+              <button
+                onClick={() =>
+                  setIndiceActual((prev) =>
+                    (prev + 1) % peliculasConSinopsis.length
+                  )
+                }
                 className="control-btn nav-btn"
                 aria-label="Siguiente"
                 title="Siguiente"
               >
                 ›
               </button>
-              <a
-                href={`/detalle/pelicula/${actual.id}`}
+              <Link
+                to={`/detalle/pelicula/${actual.id}`}
                 className="control-btn info-btn"
                 title="Ver más información"
               >
                 <TiInfoLarge className="btn-icon" />
                 Más información
-              </a>
+              </Link>
               <a
                 href={`https://www.youtube.com/results?search_query=${encodeURIComponent(actual.title + ' trailer')}`}
                 className="control-btn trailer-btn"
